@@ -7,24 +7,19 @@
 
 
 from time import strftime
-import decimal as dec
 import os
 
 
 def get_battery():
     """retrieve battery status and mutate it into human readable logic"""
-    acpi_max = open("/sys/class/power_supply/BAT0/charge_full").read()
-    if not int(acpi_max) > 0:
-        print('error obtaining maximum capacity:\nkernel too old or battery missing?')
+    acpi_max = int(open("/sys/class/power_supply/BAT0/charge_full").read())
+    if not acpi_max > 0:
+        print('error obtaining maximum capacity:\
+                \nkernel too old or battery missing?')
     else:
-        acpi_current = open("/sys/class/power_supply/BAT0/charge_now").read()
-        acpi_current = dec.Decimal(acpi_current)
-        acpi_max = dec.Decimal(acpi_max)
-        charge_dec = (acpi_current / acpi_max) * 100
-        dp = dec.Decimal('.01')
-        charge = charge_dec.quantize(dp, dec.ROUND_05UP)
-        charge = str(charge)
-        return charge + '%'
+        acpi_current = int(open("/sys/class/power_supply/BAT0/charge_now").read())
+        charge = "{:.2%}".format(acpi_current / acpi_max)
+        return charge
 
 
 def get_loadavg():
